@@ -1,0 +1,44 @@
+---
+title: "WHO - Air Pollution"
+author: "JcB"
+date: "13 mai 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+En 2016 l'OMS publie une mise à jour du niveau de pollution d'environ 3000 villes dans le monde (représentant 80% de la population mondiale).
+
+Source: [http://www.who.int/phe/health_topics/outdoorair/databases/cities/en/?service=xml](http://www.who.int/phe/health_topics/outdoorair/databases/cities/en/?service=xml)
+
+La base de donnée est sauvegardée au format _csv2_ dans _Data/WHO_AAP_database_May2016_v3web.csv_. Le header se trouve sur la ligne 3.
+
+```{r}
+# Lecture de données
+d <- read.csv2("../Data/WHO_AAP_database_May2016_v3web.csv", skip = 2)
+n <- nrow(d)
+
+# uniquement les villes françaises
+f <- d[d$Country == "France",]
+nf <- nrow(f)
+
+```
+- Nombre de villes: `r n`
+- Nombre de villes françaises: `r nf`
+
+```{r}
+# Liste des communes françaises existantes au 1er janvier 2016. Source INSEE: http://www.insee.fr/fr/methodes/nomenclatures/cog/telechargement/2016/txt/comsimp2016.zip. Enregistré sous comsimp2016.csv
+commune <- read.csv("../Data/comsimp2016.csv")
+
+# merge les 2 fichiers sur le nom de la commune pour récupérer le n° du département
+a <- merge(f, commune, by.x = "City.Town", by.y = "NCC", all.x = TRUE)
+
+# uniquement les communes d'Alsace
+alsace <- a[a$DEP %in% c(67,68),]
+
+mean(alsace$Annual.mean..ug.m3)
+```
+
+
